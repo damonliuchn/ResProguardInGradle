@@ -1,0 +1,74 @@
+def resProguardworkingDir = "${project.projectDir}/doc/resourceproguard"
+def resProguardzipalignPath = "${resProguardworkingDir}/zipalign"
+
+def resProguardsignatureFilePath = ""
+def resProguardstorepassValue = ""
+def resProguardkeypassValue = ""
+def resProguardstorealiasValue = ""
+
+def resouceProguardTask = {
+    def variantName ->
+        def inputApkPath = "${project.buildDir}/outputs/apk/app-${variantName}.apk"
+        def outputPath = "${project.buildDir}/resourceproguard"
+        File outputApkFile = new File("${outputPath}/app-${variantName}_signed_aligned.apk")
+        File outputApk7zipFile = new File("${outputPath}/app-${variantName}_signed_7zip_aligned.apk")
+        project.exec {
+            workingDir "${resProguardworkingDir}"
+            executable "java"
+            args "-jar", "resourceproguard.jar", "${inputApkPath}", "-out", "${outputPath}", "-signature", "${resProguardsignatureFilePath}", "${resProguardstorepassValue}", "${resProguardkeypassValue}", "${resProguardstorealiasValue}", "-zipalign", "${resProguardzipalignPath}"
+        }
+        if (outputApk7zipFile.exists()) {
+            outputApk7zipFile.renameTo(new File("${inputApkPath}"));
+            println "resources proguard apk replace done, you can go to file to find the output ${inputApkPath}"
+        } else if (outputApkFile.exists()) {
+            outputApkFile.renameTo(new File("${inputApkPath}"));
+            println "resources proguard apk replace done, you can go to file to find the output ${inputApkPath}"
+        }
+}
+android {
+    productFlavors {
+        flavorExample {
+
+        }
+    }
+}
+
+afterEvaluate { project ->
+    project.tasks.validateDebugSigning << {
+        resProguardstorealiasValue = signingConfig.getKeyAlias()
+        resProguardstorepassValue = signingConfig.getStorePassword()
+        resProguardkeypassValue = signingConfig.getKeyPassword()
+        resProguardsignatureFilePath = signingConfig.getStoreFile().getAbsolutePath()
+    }
+
+    project.tasks.validateReleaseSigning << {
+        resProguardstorealiasValue = signingConfig.getKeyAlias()
+        resProguardstorepassValue = signingConfig.getStorePassword()
+        resProguardkeypassValue = signingConfig.getKeyPassword()
+        resProguardsignatureFilePath = signingConfig.getStoreFile().getAbsolutePath()
+    }
+
+    project.tasks.assembleFlavorExampleDebug << {
+        resouceProguardTask("flavorExample-debug")
+        println resProguardsignatureFilePath
+    }
+
+    project.tasks.assembleFlavorExampleRelease << {
+        resouceProguardTask("flavorExample-release")
+        println resProguardsignatureFilePath
+    }
+}
+
+assembleDebug << {
+    resouceProguardTask("debug")
+}
+
+assembleRelease << {
+    resouceProguardTask("release")
+}
+
+
+
+
+
+
