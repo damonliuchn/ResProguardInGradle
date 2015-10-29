@@ -16,7 +16,7 @@ android {
     signingConfigs {
         release {
             storeFile file("${project.projectDir}/doc/debug.keystore")
-            keyAlias 'androiddebugkey'
+            keyAlias 'AndroidDebugKey'
             keyPassword 'android'
             storePassword 'android'
         }

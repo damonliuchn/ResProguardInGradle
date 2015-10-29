@@ -25,13 +25,6 @@ def resouceProguardTask = {
             println "resources proguard apk replace done, you can go to file to find the output ${inputApkPath}"
         }
 }
-android {
-    productFlavors {
-        flavorExample {
-
-        }
-    }
-}
 
 afterEvaluate { project ->
     project.tasks.validateDebugSigning << {
@@ -48,15 +41,13 @@ afterEvaluate { project ->
         resProguardsignatureFilePath = signingConfig.getStoreFile().getAbsolutePath()
     }
 
-    project.tasks.assembleFlavorExampleDebug << {
-        resouceProguardTask("flavorExample-debug")
-        println resProguardsignatureFilePath
-    }
-
-    project.tasks.assembleFlavorExampleRelease << {
-        resouceProguardTask("flavorExample-release")
-        println resProguardsignatureFilePath
-    }
+//    project.tasks.assembleFlavorExampleDebug << {
+//        resouceProguardTask("flavorExample-debug")
+//    }
+//
+//    project.tasks.assembleFlavorExampleRelease << {
+//        resouceProguardTask("flavorExample-release")
+//    }
 }
 
 assembleDebug << {
