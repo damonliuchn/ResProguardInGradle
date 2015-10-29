@@ -8,10 +8,10 @@ def resProguardstorealiasValue = ""
 
 def resouceProguardTask = {
     def variantName ->
-        def inputApkPath = "${project.buildDir}/outputs/apk/app-${variantName}.apk"
+        def inputApkPath = "${project.buildDir}/outputs/apk/${project.name}-${variantName}.apk"
         def outputPath = "${project.buildDir}/resourceproguard"
-        File outputApkFile = new File("${outputPath}/app-${variantName}_signed_aligned.apk")
-        File outputApk7zipFile = new File("${outputPath}/app-${variantName}_signed_7zip_aligned.apk")
+        File outputApkFile = new File("${outputPath}/${project.name}-${variantName}_signed_aligned.apk")
+        File outputApk7zipFile = new File("${outputPath}/${project.name}-${variantName}_signed_7zip_aligned.apk")
         project.exec {
             workingDir "${resProguardworkingDir}"
             executable "java"
