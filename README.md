@@ -28,7 +28,9 @@ afterEvaluate { project ->
 
 }
 ```
-4、you can clone this demo repo and enjoy it!
+4、this script is only test in mac os，if you use linux or window you should replace the zipalign path
+
+5、you can clone this demo repo and enjoy it!
 
 #Contact me:
 
