@@ -1,31 +1,34 @@
 # ResProguardInGradle
-when run "gralde assembleXX" ,auto do resource proguard and sign.
+when run "gradle assembleXX" ,auto do resource proguard and sign.
 
 #Usage: 
 1、download resourceproguard.zip and extract it to your_android_studio_project/app/doc
 
 2、input "apply from: './doc/resourceproguard/resourceproguard.gradle'" to your build.gradle in your_android_studio_project/app. 
 
-3、gralde assembleDebug or gralde assembleRelease ,this gradle script will auto do resource proguad and sign.
+3、gradle assembleDebug or gradle assembleRelease ,this gradle script will auto do resource proguard and sign.
 
 4、The signature of generated apk is the same as the signature of you provided APK.
 
 #Other:
 1、the resource proguard engine use [AndResGuard](https://github.com/shwenzhang/AndResGuard)
 
-2、you can config the resource progurad in your_android_studio_project/app/doc/resourceproguard/config.xml
+2、you can config the resource proguard in your_android_studio_project/app/doc/resourceproguard/config.xml
 
-3、if you have flaver in your build.gradle ,please modify your_android_studio_project/app/doc/resourceproguard/resourceproguard.gradle
+3、if you have flavor in your build.gradle ,please modify your_android_studio_project/app/doc/resourceproguard/resourceproguard.gradle
 
 for example:
 ```java
-afterEvaluate { project ->
-    ...
-    
-    project.tasks.assembleFlavorExampleDebug << {
-        resouceProguardTask("flavorExample-debug")
-    }
+afterEvaluate {
+    tasks.withType(Task).each { task ->
 
+        ...
+
+        //support flavor
+        tasks.assembleFlavorExampleRelease << {
+            resourceProguardTask("flavorExample-release")
+        }
+    }
 }
 ```
 4、this script is only test in mac os，if you use linux or window you should replace the zipalign path

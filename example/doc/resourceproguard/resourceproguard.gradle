@@ -26,37 +26,30 @@ def resouceProguardTask = {
         }
 }
 
-afterEvaluate { project ->
-    project.tasks.validateDebugSigning << {
-        resProguardstorealiasValue = signingConfig.getKeyAlias()
-        resProguardstorepassValue = signingConfig.getStorePassword()
-        resProguardkeypassValue = signingConfig.getKeyPassword()
-        resProguardsignatureFilePath = signingConfig.getStoreFile().getAbsolutePath()
+afterEvaluate {
+    tasks.withType(Task).each { task ->
+        task.doLast {
+            if (task.name.startsWith("assemble")) {
+                resouceProguardTask(task.name.replace("assemble", "").toLowerCase())
+            }
+        }
+//        support flavor
+//        tasks.assembleFlavorExampleRelease << {
+//            resouceProguardTask("flavorExample-release")
+//        }
+
+        if(task.name.startsWith("validate")&& task.name.endsWith("Signing")){
+            task  << {
+                resProguardstorealiasValue = signingConfig.getKeyAlias()
+                resProguardstorepassValue = signingConfig.getStorePassword()
+                resProguardkeypassValue = signingConfig.getKeyPassword()
+                resProguardsignatureFilePath = signingConfig.getStoreFile().getAbsolutePath()
+            }
+        }
     }
 
-    project.tasks.validateReleaseSigning << {
-        resProguardstorealiasValue = signingConfig.getKeyAlias()
-        resProguardstorepassValue = signingConfig.getStorePassword()
-        resProguardkeypassValue = signingConfig.getKeyPassword()
-        resProguardsignatureFilePath = signingConfig.getStoreFile().getAbsolutePath()
-    }
-
-//    project.tasks.assembleFlavorExampleDebug << {
-//        resouceProguardTask("flavorExample-debug")
-//    }
-//
-//    project.tasks.assembleFlavorExampleRelease << {
-//        resouceProguardTask("flavorExample-release")
-//    }
 }
 
-assembleDebug << {
-    resouceProguardTask("debug")
-}
-
-assembleRelease << {
-    resouceProguardTask("release")
-}
 
 
 
