@@ -6,7 +6,7 @@ when run "gradle assembleXX" ,auto do resource proguard and sign.
 
 2、input "apply from: './doc/resourceproguard/resourceproguard.gradle'" to your build.gradle in your_android_studio_project/app. 
 
-3、gradle assembleDebug or gradle assembleRelease ,this gradle script will auto do resource proguard and sign.
+3、run your app or gradle assembleDebug or gradle assembleRelease ,this gradle script will auto do resource proguard and sign.
 
 4、The signature of generated apk is the same as the signature of you provided APK.
 
