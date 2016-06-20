@@ -1,5 +1,4 @@
 apply plugin: 'com.android.application'
-apply from: './doc/resourceproguard/resourceproguard.gradle'
 
 android {
     compileSdkVersion 22
@@ -39,7 +38,8 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.android.support:appcompat-v7:22.2.1'
 }
-
+//在这里配置resourceproguard
+apply from: './doc/resourceproguard/resourceproguard.gradle'
 
 
 
