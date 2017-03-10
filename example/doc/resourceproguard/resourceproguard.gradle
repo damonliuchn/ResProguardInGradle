@@ -1,57 +1,90 @@
 def resProguardworkingDir = "${project.projectDir}/doc/resourceproguard"
-def resProguardzipalignPath = "${resProguardworkingDir}/zipalign"
+def resProguardconfigPath = "${resProguardworkingDir}/config.xml"
+def resProguard7zipPath = "${resProguardworkingDir}/SevenZip-1.1.16-osx-x86_64.exe"
+def outputPath = "${project.buildDir}/outputs/resourceproguard"
+//这是一个函数,但它不能使用外部变量
+def resProguardzipalignPath() {
+    return "${android.getSdkDirectory().getAbsolutePath()}/build-tools/${android.buildToolsVersion}/zipalign"
+}
 
-def resProguardsignatureFilePath = ""
-def resProguardstorepassValue = ""
-def resProguardkeypassValue = ""
-def resProguardstorealiasValue = ""
-
+def apksignerPath() {
+    return "${android.getSdkDirectory().getAbsolutePath()}/build-tools/${android.buildToolsVersion}/apksigner"
+}
+//配置目标variant，必须最具体的variant
+def targetVariants = ["release", "debug"];
+//这是一个函数
 def resouceProguardTask = {
-    def variantName ->
-        def inputApkPath = "${project.buildDir}/outputs/apk/${project.name}-${variantName}.apk"
-        def outputPath = "${project.buildDir}/resourceproguard"
-        File outputApkFile = new File("${outputPath}/${project.name}-${variantName}_signed_aligned.apk")
-        File outputApk7zipFile = new File("${outputPath}/${project.name}-${variantName}_signed_7zip_aligned.apk")
+    def currentVariant ->
+        def signingConfig
+        def inputApkPath
+        android.applicationVariants.all { variant ->
+            String tmp = variant.buildType.name
+            if (variant.productFlavors.size() > 0) {
+                tmp = variant.productFlavors.get(0).name + tmp
+            }
+            if (currentVariant.equalsIgnoreCase(tmp)) {
+                signingConfig = variant.apkVariantData.variantConfiguration.signingConfig
+                inputApkPath = variant.outputs[0].outputFile.getAbsolutePath()
+            }
+        }
+        String keyAlias = signingConfig.getKeyAlias()
+        String storePwd = signingConfig.getStorePassword()
+        String keyPwd = signingConfig.getKeyPassword()
+        String storePath = signingConfig.getStoreFile().getAbsolutePath()
+
+        //执行AndResGuard
         project.exec {
             workingDir "${resProguardworkingDir}"
             executable "java"
-            args "-jar", "resourceproguard.jar", "${inputApkPath}", "-out", "${outputPath}", "-signature", "${resProguardsignatureFilePath}", "${resProguardstorepassValue}", "${resProguardkeypassValue}", "${resProguardstorealiasValue}", "-zipalign", "${resProguardzipalignPath}"
+            args "-jar", "resourceproguard.jar", "${inputApkPath}",
+                    "-config", "${resProguardconfigPath}",
+                    "-7zip", "${resProguard7zipPath}",
+                    "-out", "${outputPath}",
+                    "-signature", "${storePath}", "${storePwd}", "${keyPwd}", "${keyAlias}",
+                    "-zipalign", "${resProguardzipalignPath()}"
         }
-        if (outputApk7zipFile.exists()) {
-            outputApk7zipFile.renameTo(new File("${inputApkPath}"));
-            println "resources proguard apk replace done, you can go to file to find the output ${inputApkPath}"
-        } else if (outputApkFile.exists()) {
-            outputApkFile.renameTo(new File("${inputApkPath}"));
-            println "resources proguard apk replace done, you can go to file to find the output ${inputApkPath}"
+
+        //重命名apk
+        File[] apkFiles = new File(outputPath).listFiles(new FilenameFilter() {
+            boolean accept(File var1, String name) {
+                return name.endsWith("signed_7zip_aligned.apk");
+            }
+        });
+        if (apkFiles != null && apkFiles.size() > 0) {
+            apkFiles[0].renameTo(new File("${inputApkPath}"));
+            println "[AndResGuard] apk replace done, you can go to file to find the output ${inputApkPath}"
+        }
+
+        //重新签名（判断）
+        if (signingConfig.v2SigningEnabled) {
+            project.exec {
+                executable "${apksignerPath()}"
+                args "sign",
+                        "--v2-signing-enabled", "true",
+                        "--ks", "${storePath}",
+                        "--ks-pass", "pass:${storePwd}",
+                        "--ks-key-alias", "${keyAlias}",
+                        "--key-pass", "pass:${keyPwd}",
+                        "${inputApkPath}"
+            }
+            println "[AndResGuard] apk sign(v2) done, you can go to file to find the output ${inputApkPath}"
         }
 }
 
+//可以理解为是一个callback对象
 afterEvaluate {
     tasks.withType(Task).each { task ->
         task.doLast {
             if (task.name.startsWith("assemble")) {
-                resouceProguardTask(task.name.replace("assemble", "").toLowerCase())
-            }
-        }
-//        support flavor
-//        tasks.assembleFlavorExampleRelease << {
-//            resouceProguardTask("flavorExample-release")
-//        }
-
-        if(task.name.startsWith("validate")&& task.name.endsWith("Signing")){
-            task  << {
-                resProguardstorealiasValue = signingConfig.getKeyAlias()
-                resProguardstorepassValue = signingConfig.getStorePassword()
-                resProguardkeypassValue = signingConfig.getKeyPassword()
-                resProguardsignatureFilePath = signingConfig.getStoreFile().getAbsolutePath()
+                targetVariants.each { va ->
+                    if (task.name.replace("assemble", "").equalsIgnoreCase(va)) {
+                        resouceProguardTask(va)
+                    }
+                }
             }
         }
     }
-
 }
-
-
-
 
 
 

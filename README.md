@@ -1,16 +1,18 @@
 # ResProguardInGradle
-when run "gradle assembleXX" ,auto do resource proguard and sign.
+when run gradle assemble task ,auto do resource proguard and sign.
 
-#Usage: 
+#Usage:
+
 1、download resourceproguard.zip and extract it to your_android_studio_project/app/doc
 
 2、input "apply from: './doc/resourceproguard/resourceproguard.gradle'" to your build.gradle in your_android_studio_project/app. 
 
-3、run your app or gradle assembleDebug or gradle assembleRelease ,this gradle script will auto do resource proguard and sign.
+3、run your app or gradle assembleDebug or gradle assembleRelease ,this gradle script will auto do resource proguard , 7zip , zipalign and sign.
 
-4、The signature of generated apk is the same as the signature of you provided APK.
+4、detect signature config and scheme version automatically, support APK Signature Scheme v2.
 
 #Other:
+
 1、the resource proguard engine use [AndResGuard](https://github.com/shwenzhang/AndResGuard)
 
 2、you can config the resource proguard in your_android_studio_project/app/doc/resourceproguard/config.xml
@@ -19,30 +21,21 @@ when run "gradle assembleXX" ,auto do resource proguard and sign.
 
 for example:
 ```java
-afterEvaluate {
-    tasks.withType(Task).each { task ->
-
-        ...
-
-        //support flavor
-        tasks.assembleFlavorExampleRelease << {
-            resourceProguardTask("flavorExample-release")
-        }
-    }
-}
+//variant
+def targetVariants = ["googleRelease"];
 ```
-4、this script is only test in mac os，if you use linux or window you should replace the zipalign path
+4、this script is only test in mac os，if you use linux or window you should replace the [SevenZip-1.1.16-osx-x86_64.exe](https://github.com/shwenzhang/AndResGuard/tree/master/SevenZip/executable)
 
 5、you can clone this demo repo and enjoy it!
 
 #Contact me:
 
-Blog:http://blog.csdn.net/masonblog
+Blog:http://www.masonliu.com
 
 Email:MasonLiuChn@gmail.com
 
 #License:
-    Copyright 2013 MasonLiu, Inc.
+    Copyright 2017 MasonLiu, Inc.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
