@@ -1,10 +1,10 @@
 # ResProguardInGradle
 when run gradle assemble task ,auto do resource proguard and sign.
 
-#特性:
+# 特性:
 当使用gradle 打包某一variant时 自动进行资源混淆，7zip压缩，zipalign和重签名，并放回原路径。自动检查Signature Scheme，支持APK Signature Scheme v2重打包。
 
-#用法:
+# 用法:
 
 1、下载resourceproguard.zip，解压到项目的app/doc下
 
@@ -21,7 +21,7 @@ for example:
 def targetVariants = ["googleRelease"];
 ```
 
-#Usage:
+# Usage:
 
 1、download resourceproguard.zip and extract it to your_android_studio_project/app/doc
 
@@ -47,13 +47,13 @@ def targetVariants = ["googleRelease"];
 
 4、you can clone this demo repo and enjoy it!
 
-#Contact me:
+# Contact me:
 
 Blog:http://www.masonliu.com
 
 Email:MasonLiuChn@gmail.com
 
-#License:
+# License:
     Copyright 2017 MasonLiu, Inc.
 
     Licensed under the Apache License, Version 2.0 (the "License");
