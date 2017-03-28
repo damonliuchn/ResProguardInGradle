@@ -20,7 +20,6 @@ for example:
 //配置具体的variant来使用res proguard
 def targetVariants = ["googleRelease"];
 ```
-4、如果你的开发环境是linux或windows，请替换7zip的执行文件[SevenZip-1.1.16-osx-x86_64.exe](https://github.com/shwenzhang/AndResGuard/tree/master/SevenZip/executable)
 
 #Usage:
 
@@ -45,9 +44,8 @@ for example:
 //variant
 def targetVariants = ["googleRelease"];
 ```
-4、this script is only test in mac os，if you use linux or window you should replace the [SevenZip-1.1.16-osx-x86_64.exe](https://github.com/shwenzhang/AndResGuard/tree/master/SevenZip/executable)
 
-5、you can clone this demo repo and enjoy it!
+4、you can clone this demo repo and enjoy it!
 
 #Contact me:
 

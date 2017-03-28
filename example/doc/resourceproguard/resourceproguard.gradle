@@ -1,14 +1,32 @@
+import org.apache.tools.ant.taskdefs.condition.Os
 def resProguardworkingDir = "${project.projectDir}/doc/resourceproguard"
 def resProguardconfigPath = "${resProguardworkingDir}/config.xml"
-def resProguard7zipPath = "${resProguardworkingDir}/SevenZip-1.1.16-osx-x86_64.exe"
 def outputPath = "${project.buildDir}/outputs/resourceproguard"
 //这是一个函数,但它不能使用外部变量
 def resProguardzipalignPath() {
-    return "${android.getSdkDirectory().getAbsolutePath()}/build-tools/${android.buildToolsVersion}/zipalign"
+    def resProguardzipalignPathTmp = "${android.getSdkDirectory().getAbsolutePath()}/build-tools/${android.buildToolsVersion}/zipalign"
+    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+        return resProguardzipalignPathTmp + ".exe"
+    }
+    return resProguardzipalignPathTmp
+}
+
+def resProguard7zipPath() {
+    def resProguard7zipExeDir = "${project.projectDir}/doc/resourceproguard/SevenZip"
+    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+        return "${resProguard7zipExeDir}/SevenZip-windows-x86_64.exe"
+    } else if (Os.isFamily(Os.FAMILY_MAC)) {
+        return "${resProguard7zipExeDir}/SevenZip-1.1.16-osx-x86_64.exe"
+    }
+    return "${resProguard7zipExeDir}/SevenZip-linux-x86_64.exe"
 }
 
 def apksignerPath() {
-    return "${android.getSdkDirectory().getAbsolutePath()}/build-tools/${android.buildToolsVersion}/apksigner"
+    def apksignerPathTmp = "${android.getSdkDirectory().getAbsolutePath()}/build-tools/${android.buildToolsVersion}/apksigner"
+    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+        return apksignerPathTmp + ".bat"
+    }
+    return apksignerPathTmp
 }
 //配置目标variant，必须最具体的variant
 def targetVariants = ["release", "debug"];
@@ -38,7 +56,7 @@ def resouceProguardTask = {
             executable "java"
             args "-jar", "resourceproguard.jar", "${inputApkPath}",
                     "-config", "${resProguardconfigPath}",
-                    "-7zip", "${resProguard7zipPath}",
+                    "-7zip", "${resProguard7zipPath()}",
                     "-out", "${outputPath}",
                     "-signature", "${storePath}", "${storePwd}", "${keyPwd}", "${keyAlias}",
                     "-zipalign", "${resProguardzipalignPath()}"
@@ -51,7 +69,9 @@ def resouceProguardTask = {
             }
         });
         if (apkFiles != null && apkFiles.size() > 0) {
-            apkFiles[0].renameTo(new File("${inputApkPath}"));
+            File file = new File("${inputApkPath}")
+            file.delete()
+            apkFiles[0].renameTo(file);
             println "[AndResGuard] apk replace done, you can go to file to find the output ${inputApkPath}"
         }
 
